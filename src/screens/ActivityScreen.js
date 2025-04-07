@@ -1,12 +1,12 @@
 import React from "react";
-import { View, Text } from "react-native";
+import { Text } from "react-native";
 
-const ProfileScreen = () => {
+const ActivityScreen = () => {
   return (
     <Text style={{ fontSize: 18, fontWeight: "bold", marginBottom: 10 }}>
-      Profile Screen
+      Activity Screen
     </Text>
   );
 };
 
-export default ProfileScreen;
+export default ActivityScreen;

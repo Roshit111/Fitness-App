@@ -1,171 +1,394 @@
-import React, { useContext, useState, useEffect } from 'react';
-import { View, Text, FlatList, Dimensions } from 'react-native';
-import styled from 'styled-components/native';
-import InfoCard from '../components/InfoCard';
-import { AppContext } from '../../context/AppContext';
-import { getCompanyInfo, getProfileInfo } from '../services/authServices';
-import { LinearGradient } from 'expo-linear-gradient';
-import { StatusBar } from 'expo-status-bar';
+"use client";
 
+import React from "react";
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  ScrollView,
+  Dimensions,
+  TouchableOpacity,
+  StatusBar,
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { SafeAreaView } from "react-native-safe-area-context";
+import Colors from "../../constants/Colors";
 
-const { width, height } = Dimensions.get('window');
+const { width } = Dimensions.get("window");
+const DEFAULT_AVATAR =
+  "https://cdn-icons-png.freepik.com/256/6997/6997484.png?semt=ais_hybrid";
 
+const STRINGS = {
+  greeting: (name) =>
+    name ? (name.length > 20 ? `${name.slice(0, 17)}...` : name) : "User",
+  searchPlaceholder: "Search here...",
+  workoutHeader: "Popular Workout",
+  caloriesBurned: (calories) => `🔥 ${calories} Cal`,
+  workoutDuration: (time) => `⏳ ${time}`,
+};
 
-const Container = styled.View`
-  background-color: #f5f5f5;
-`;
+const user = {
+  name: "John Doe",
+  membershipType: "Gold",
+  visitsLeft: 12,
+};
 
-const GradientBackground = styled(LinearGradient).attrs({
-  colors: ['#c2e9fb', '#ffdde1'], // Top to bottom gradient
-  start: { x: 0, y: 0 },
-  end: { x: 1, y: 1 },
-})`
-  /* flex: 1; */
-  align-items: center;
-  /* padding: 20px; */
-  height:100%;
-`;
+const classes = [
+  {
+    id: 1,
+    day: "Monday",
+    time: "6 PM",
+    name: "Yoga",
+    instructor: "Sarah",
+    enrolled: 5,
+    capacity: 10,
+  },
+  {
+    id: 2,
+    day: "Wednesday",
+    time: "7 AM",
+    name: "HIIT",
+    instructor: "Mike",
+    enrolled: 8,
+    capacity: 12,
+  },
+  {
+    id: 3,
+    day: "Friday",
+    time: "5 PM",
+    name: "Pilates",
+    instructor: "Anna",
+    enrolled: 4,
+    capacity: 8,
+  },
+];
 
-const LogoContainer = styled.View`
-  width: ${width * 0.25}px;
-  height: ${width * 0.25}px;
-  background-color: #ffffff;
-  border-radius: ${width * 0.25}px;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 15px;
-  margin-top: 5%;
-`;
+const progress = {
+  workoutHistory: [
+    {
+      workout: "Cardio Blast",
+      caloriesBurned: 250,
+      duration: 30,
+      date: "2025-04-03",
+    },
+    {
+      workout: "Strength Training",
+      caloriesBurned: 300,
+      duration: 45,
+      date: "2025-04-02",
+    },
+  ],
+};
 
-const Logo = styled.Image.attrs(() => ({
-  resizeMode: 'contain',  // Cover ensures the image fills the container
-}))`
-  width: 95%;
-  height: 95%;
-  border-radius: ${width * 0.35}px;  /* Ensures the image respects the circular shape */
-`;
+const goals = [
+  {
+    id: 1,
+    name: "Lose 5kg",
+    target: "70kg",
+    deadline: "2025-05-01",
+    percentComplete: 60,
+    progress: "3kg lost",
+  },
+  {
+    id: 2,
+    name: "Run 10km",
+    target: "10km",
+    deadline: "2025-04-20",
+    percentComplete: 40,
+    progress: "4km run",
+  },
+];
 
-// Header styles
-const CompanyName = styled.Text`
-  font-size: 22px;
-  font-weight: bold;
-  margin: 10px 0;
-  color: #333333;
-`;
+const nutrition = {
+  waterIntake: 6,
+};
 
-const SubHeader = styled.Text`
-  font-size: 16px;
-  margin-bottom: 20px;
-  color: #555555;
-`;
+const loading = false;
 
-// Activity List
-const ActivityContainer = styled.View`
-  width: 100%;
-  margin-top: 20px;
-  padding: 20px;
-`;
+const HomeScreen = ({ navigation }) => {
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <Text>Loading...</Text>
+      </View>
+    );
+  }
 
-const ActivityRow = styled.View`
-  flex-direction: row;
-  justify-content: space-between;
-  padding: 12px 16px;
-  background-color: #ffffff;
-  margin-bottom: 5px;
-  border-radius: 10px;
-  elevation: 2;
-`;
-
-const ActivityText = styled.Text`
-  font-size: 14px;
-  color: #333333;
-`;
-
-const StatusText = styled.Text`
-  font-size: 14px;
-  font-weight: bold;
-  color: #e63946;
-`;
-
-const Row = styled.View`
-  flex-direction: row;
-  justify-content: center;
-  width: 100%;
-  margin-bottom: 10px;
-`;
-
-// Main App Component
-const HomePage = () => {
-  const { userToken } = useContext(AppContext);
-  const [company, setCompany] = useState({});
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    setLoading(true);
-    getCompanyInfo()
-      .then((res) => {
-        setCompany(res.data);
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
-  }, []);
-
-  const activities = [
-    { id: '1', reference: 'PROJECT-2021-00002', status: 'IN PROGRESS' },
-    { id: '2', reference: 'PROJECT-2023-00004', status: 'IN PROGRESS' },
-    { id: '3', reference: 'PTAX-2020-00005', status: 'IN PROGRESS' },
-  ];
+  const upcomingClasses = classes.slice(0, 3);
+  const recentWorkouts = progress.workoutHistory.slice(-2).reverse();
+  const inProgressGoals = goals
+    .filter((goal) => goal.percentComplete < 100)
+    .slice(0, 2);
 
   return (
-    <Container>
-      <StatusBar barStyle="light-content" backgroundColor="#a970ff" />
-    <GradientBackground>
-      {/* Logo */}
-        <LogoContainer>
-          <Logo source={{ uri: company.image || 'https://via.placeholder.com/150' }} />
-        </LogoContainer>
-        <CompanyName>{company.name || 'Atomwalk Technologies'}</CompanyName>
+    <View style={styles.container}>
+      <View style={styles.header}>
+        <View>
+          <Text style={styles.greeting}>Hello, {user?.name}</Text>
+          <Text style={styles.membershipInfo}>
+            {user?.membershipType} Membership • {user?.visitsLeft} visits left
+          </Text>
+        </View>
+        <TouchableOpacity
+          style={styles.profileButton}
+          onPress={() => navigation?.navigate("Profile")}
+        >
+          <Image
+            source={{
+              uri: DEFAULT_AVATAR,
+            }}
+            style={styles.profileImage}
+          />
+        </TouchableOpacity>
+      </View>
 
-      {/* <Header>ATOMWALK TECHNOLOGIES</Header> */}
-      <SubHeader>Welcome to Atomwalk Office!</SubHeader>
+      <ScrollView>
+        {/* Quick Actions */}
+        <View style={styles.quickActions}>
+          <TouchableOpacity
+            style={styles.actionButton}
+            onPress={() => navigation?.navigate("Classes")}
+          >
+            <Ionicons name="calendar" size={24} color="#4CAF50" />
+            <Text style={styles.actionText}>Book Class</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.actionButton}
+            onPress={() => navigation?.navigate("Workout")}
+          >
+            <Ionicons name="fitness" size={24} color="#4CAF50" />
+            <Text style={styles.actionText}>Start Workout</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.actionButton}
+            onPress={() => navigation?.navigate("Progress")}
+          >
+            <Ionicons name="trending-up" size={24} color="#4CAF50" />
+            <Text style={styles.actionText}>Track Progress</Text>
+          </TouchableOpacity>
+        </View>
 
-      {/* <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center' }}>
-        <InfoCard number="3" label="Project Activities" gradientColors={['#007bff', '#00c6ff']} />
-        <InfoCard number="0" label="Reviews" gradientColors={['#6dd5ed', '#2193b0']} />
-        <InfoCard number="1" label="Completed Activities" gradientColors={['#38ef7d', '#11998e']} />
-        <InfoCard number="2" label="Pending/On Hold" gradientColors={['#f09819', '#ff512f']} />
-        <InfoCard number="2" label="Over Due Activities" gradientColors={['#e52d27', '#b31217']} />
-      </View> */}
+        {/* Today's Summary */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Today's Summary</Text>
+          <View style={styles.summaryContainer}>
+            <View style={styles.summaryItem}>
+              <Ionicons name="water" size={24} color="#2196F3" />
+              <Text style={styles.summaryValue}>
+                {nutrition.waterIntake} / 8
+              </Text>
+              <Text style={styles.summaryLabel}>Water (cups)</Text>
+            </View>
+            <View style={styles.summaryItem}>
+              <Ionicons name="flame" size={24} color="#FF5722" />
+              <Text style={styles.summaryValue}>
+                {recentWorkouts[0]?.caloriesBurned || 0}
+              </Text>
+              <Text style={styles.summaryLabel}>Calories</Text>
+            </View>
+            <View style={styles.summaryItem}>
+              <Ionicons name="time" size={24} color="#9C27B0" />
+              <Text style={styles.summaryValue}>
+                {recentWorkouts[0]?.duration || 0}
+              </Text>
+              <Text style={styles.summaryLabel}>Minutes</Text>
+            </View>
+          </View>
+        </View>
 
-      {/* Cards Layout */}
-      <Row>
-          <InfoCard number="3" label="Project Activities" gradientColors={['#007bff', '#00c6ff']} />
-          <InfoCard number="0" label="Reviews" gradientColors={['#6dd5ed', '#2193b0']} />
-        </Row>
-
-        <Row>
-          <InfoCard number="1" label="Completed Activities" gradientColors={['#38ef7d', '#11998e']} />
-          <InfoCard number="2" label="Pending/On Hold" gradientColors={['#f09819', '#ff512f']} />
-          <InfoCard number="2" label="Over Due Activities" gradientColors={['#e52d27', '#b31217']} />
-        </Row>
-
-      {/* Activity List */}
-      <ActivityContainer>
-        <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 10 }}>Activity Reference</Text>
-        <FlatList
-          data={activities}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <ActivityRow>
-              <ActivityText>{item.reference}</ActivityText>
-              <StatusText>{item.status}</StatusText>
-            </ActivityRow>
+        {/* Upcoming Classes */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Upcoming Classes</Text>
+            <TouchableOpacity onPress={() => navigation?.navigate("Classes")}>
+              <Text style={styles.seeAllText}>See All</Text>
+            </TouchableOpacity>
+          </View>
+          {upcomingClasses.length > 0 ? (
+            upcomingClasses.map((classItem) => (
+              <TouchableOpacity
+                key={classItem.id}
+                style={styles.classCard}
+                onPress={() =>
+                  navigation?.navigate("ClassDetail", { classId: classItem.id })
+                }
+              >
+                <View style={styles.classInfo}>
+                  <Text style={styles.classTime}>
+                    {classItem.day}, {classItem.time}
+                  </Text>
+                  <Text style={styles.className}>{classItem.name}</Text>
+                  <Text style={styles.classInstructor}>
+                    with {classItem.instructor}
+                  </Text>
+                </View>
+                <View style={styles.classCapacity}>
+                  <Text style={styles.capacityText}>
+                    {classItem.enrolled}/{classItem.capacity}
+                  </Text>
+                  <Text style={styles.capacityLabel}>Spots</Text>
+                </View>
+              </TouchableOpacity>
+            ))
+          ) : (
+            <Text style={styles.emptyText}>No upcoming classes</Text>
           )}
-        />
-      </ActivityContainer>
-    </GradientBackground>
-    </Container>
+        </View>
+      </ScrollView>
+    </View>
   );
 };
 
-export default HomePage;
+const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    backgroundColor: Colors.primary,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: "#eee",
+  },
+  greeting: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#333",
+  },
+  membershipInfo: {
+    fontSize: 14,
+    color: "#666",
+    marginTop: 4,
+  },
+  profileButton: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    overflow: "hidden",
+  },
+  profileImage: {
+    width: "100%",
+    height: "100%",
+  },
+  quickActions: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    padding: 15,
+    backgroundColor: "#fff",
+    marginTop: 10,
+    borderRadius: 10,
+    marginHorizontal: 15,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  actionButton: {
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 10,
+  },
+  actionText: {
+    marginTop: 5,
+    fontSize: 12,
+    color: "#333",
+  },
+  section: {
+    backgroundColor: "#fff",
+    marginTop: 15,
+    padding: 15,
+    borderRadius: 10,
+    marginHorizontal: 15,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  sectionHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 15,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#333",
+  },
+  seeAllText: {
+    color: "#4CAF50",
+    fontSize: 14,
+  },
+  summaryContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  summaryItem: {
+    alignItems: "center",
+    flex: 1,
+  },
+  summaryValue: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginTop: 5,
+    color: "#333",
+  },
+  summaryLabel: {
+    fontSize: 12,
+    color: "#666",
+    marginTop: 2,
+  },
+  classCard: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: "#eee",
+  },
+  classInfo: {
+    flex: 1,
+  },
+  classTime: {
+    fontSize: 12,
+    color: "#666",
+  },
+  className: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#333",
+    marginTop: 2,
+  },
+  classInstructor: {
+    fontSize: 12,
+    color: "#666",
+    marginTop: 2,
+  },
+  classCapacity: {
+    alignItems: "center",
+  },
+  capacityText: {
+    fontSize: 14,
+    fontWeight: "bold",
+    color: "#333",
+  },
+  capacityLabel: {
+    fontSize: 12,
+    color: "#666",
+  },
+  emptyText: {
+    textAlign: "center",
+    color: "#999",
+    fontSize: 14,
+  },
+});
+
+export default HomeScreen;
