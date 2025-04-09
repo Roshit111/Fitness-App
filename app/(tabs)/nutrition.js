@@ -5,7 +5,7 @@ import Colors from "../../constants/Colors";
 import { SafeAreaView } from "react-native-safe-area-context";
 import NutritionScreen from "../../src/screens/NutritionScreen";
 
-const home = () => {
+const index = () => {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar style="light" backgroundColor={Colors.primary} />
@@ -14,7 +14,7 @@ const home = () => {
   );
 };
 
-export default home;
+export default index;
 
 const styles = StyleSheet.create({
   container: {
