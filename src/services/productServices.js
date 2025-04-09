@@ -1,21 +1,31 @@
-import { addEmpLeave, getEmpLeavedata, addClaim, getEmpClaimdata, getExpenseItemList, getProjectList, getEmpAttendanceData, getEmpHolidayData, empCheckData, processClaim, getClaimApproverList } from "../services/ConstantServies";
+import { addEmpLeave, getEmpLeavedata, addClaim, getEmpClaimdata, getExpenseItemList, getProjectList, getEmpAttendanceData, getEmpHolidayData, empCheckData, processClaim, getClaimApproverList, productListURL, userTaskListURL, getCustomerDetailListURL, getemployeeList } from "../services/ConstantServies";
 import { authAxios, authAxiosFilePost, authAxiosPost } from "./HttpMethod";
 
-export function getEmpLeave(leave_type , emp_id, year) {
-    let data = {};
-    if (leave_type ){
-        data['leave_type '] = leave_type;
-    }
-    if (emp_id){
-        data['emp_id'] = emp_id;
-    }
-    if (year){
-        data['year'] = year;
-    }
-  
-    // console.log('getUserTasks', task_type, userTaskListURL, data)
-    return authAxios(getEmpLeavedata, data)
+export function getUserTasks(task_type, customer_id,emp_id) {
+  let data = {};
+  if (task_type){
+      data['task_type'] = task_type;
   }
+  if (customer_id){
+      data['customer_id'] = customer_id;
+  }
+  if (emp_id){
+    data['emp_id'] = emp_id;
+}
+
+
+  // console.log('getUserTasks', task_type, userTaskListURL, data)
+  return authAxios(userTaskListURL, data)
+}
+
+export function getCustomerDetailList() {
+  // console.log('getCustomerDetailList')
+  return authAxios(getCustomerDetailListURL)
+}
+
+// export const getUserTasks = (type, filter, userId) => {
+//   return axios.get("some-task-endpoint", { params: { type, filter, userId } });
+// };
   
   export function postEmpLeave(leave_type) {
     let data = {};
@@ -95,3 +105,11 @@ export function getEmpLeave(leave_type , emp_id, year) {
     // console.log('Data to be sent:', data);
     return authAxiosPost(empCheckData, data)
   }
+  export function getproductlist(name) {
+    // console.log('getLeadList', name)
+    return authAxios(productListURL)
+  }
+
+  export function getemployelistview() { 
+    return authAxios(getemployeeList)
+  }

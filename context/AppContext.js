@@ -109,6 +109,8 @@ const AppProvider = ({ children }) => {
         AsyncStorage.removeItem('userToken');
         AsyncStorage.removeItem('companyInfo');
         AsyncStorage.removeItem('dbName');
+
+        // console.log("Logout")
         
         setUserToken(null);
         setCompanyInfo([]);
