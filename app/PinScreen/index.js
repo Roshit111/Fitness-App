@@ -9,10 +9,13 @@ import {
 } from "react-native";
 import { useEffect } from "react";
 import { useRouter } from "expo-router";
+import Colors from "../../constants/Colors";
+import { StatusBar } from "expo-status-bar";
 import Icon from "react-native-vector-icons/Ionicons";
 import { AppContext } from "../../context/AppContext";
 import PinPassword from "../../src/screens/OLD/PinPassword";
 import React, { useContext, useRef, useState } from "react";
+import { SafeAreaView } from "react-native-safe-area-context";
 import * as LocalAuthentication from "expo-local-authentication";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -84,54 +87,57 @@ const AuthScreen = () => {
     }
   };
   return (
-    <ImageBackground
-      source={require("../../assets/images/Backgroundback.png")} // Example background image URL
-      style={styles.background}
-    >
-      <View style={styles.overlay}>
-        <View style={styles.card}>
-          <Text style={styles.title}>Login with PIN</Text>
-          <View style={styles.mPINContainer}>
-            {mPIN.map((value, index) => (
-              <TextInput
-                key={index}
-                ref={inputRefs[index]}
-                style={styles.mPINInput}
-                maxLength={1}
-                keyboardType="number-pad"
-                value={value}
-                onChangeText={(text) => handleMPINChange(text, index)}
-              />
-            ))}
+    <SafeAreaView style={styles.container}>
+      <StatusBar style="light" backgroundColor={Colors.primary} />
+      <ImageBackground
+        source={require("../../assets/images/Backgroundback.png")} // Example background image URL
+        style={styles.background}
+      >
+        <View style={styles.overlay}>
+          <View style={styles.card}>
+            <Text style={styles.title}>Login with PIN</Text>
+            <View style={styles.mPINContainer}>
+              {mPIN.map((value, index) => (
+                <TextInput
+                  key={index}
+                  ref={inputRefs[index]}
+                  style={styles.mPINInput}
+                  maxLength={1}
+                  keyboardType="number-pad"
+                  value={value}
+                  onChangeText={(text) => handleMPINChange(text, index)}
+                />
+              ))}
+            </View>
+            {attemptsRemaining < maxAttempts && (
+              <Text style={styles.errorText}>
+                Incorrect mPIN. {attemptsRemaining} attempts remaining.
+              </Text>
+            )}
+            <TouchableOpacity
+              style={styles.submitButton}
+              onPress={handleMPINSubmit}
+            >
+              <Text style={styles.submitButtonText}>Submit</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={openpupop}>
+              <Text style={styles.forgotText}>Forgot PIN?</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.fingerprintButton}
+              onPress={handleBiometricAuthentication}
+            >
+              <Icon name="finger-print" size={30} color="#fff" />
+              <Text style={styles.fingerprintButtonText}>Use Fingerprint</Text>
+            </TouchableOpacity>
           </View>
-          {attemptsRemaining < maxAttempts && (
-            <Text style={styles.errorText}>
-              Incorrect mPIN. {attemptsRemaining} attempts remaining.
-            </Text>
-          )}
-          <TouchableOpacity
-            style={styles.submitButton}
-            onPress={handleMPINSubmit}
-          >
-            <Text style={styles.submitButtonText}>Submit</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={openpupop}>
-            <Text style={styles.forgotText}>Forgot PIN?</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.fingerprintButton}
-            onPress={handleBiometricAuthentication}
-          >
-            <Icon name="finger-print" size={30} color="#fff" />
-            <Text style={styles.fingerprintButtonText}>Use Fingerprint</Text>
-          </TouchableOpacity>
         </View>
-      </View>
-      <PinPassword
-        setModalVisible={setModalVisible}
-        modalVisible={modalVisible}
-      ></PinPassword>
-    </ImageBackground>
+        <PinPassword
+          setModalVisible={setModalVisible}
+          modalVisible={modalVisible}
+        ></PinPassword>
+      </ImageBackground>
+    </SafeAreaView>
   );
 };
 

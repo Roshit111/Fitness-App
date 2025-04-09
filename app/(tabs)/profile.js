@@ -5,16 +5,16 @@ import Colors from "../../constants/Colors";
 import { SafeAreaView } from "react-native-safe-area-context";
 import ProfileScreen from "../../src/screens/ProfileScreen";
 
-const index = () => {
+const home = () => {
   return (
     <SafeAreaView style={styles.container}>
-      {/* <StatusBar style="light" backgroundColor={Colors.primary} /> */}
+      <StatusBar style="light" backgroundColor={Colors.primary} />
       <ProfileScreen />
     </SafeAreaView>
   );
 };
 
-export default index;
+export default home;
 
 const styles = StyleSheet.create({
   container: {

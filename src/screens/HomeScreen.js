@@ -17,9 +17,7 @@ import {
 } from "react-native";
 import Colors from "../../constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router"; // Import router for Expo Router
-// import Colors from "../../constants/Colors";
 import { getproductlist } from "../services/productServices";
 import { getemployelistview } from "../services/productServices";
 import { getProfileInfo } from "../services/authServices";
@@ -35,12 +33,6 @@ const STRINGS = {
   workoutHeader: "Popular Workout",
   caloriesBurned: (calories) => `🔥 ${calories} Cal`,
   workoutDuration: (time) => `⏳ ${time}`,
-};
-
-const user = {
-  name: "ANIKET",
-  membershipType: "Gold",
-  visitsLeft: 12,
 };
 
 const classes = [
@@ -110,7 +102,7 @@ const goals = [
 ];
 
 const nutrition = {
-  waterIntake: 6,
+  waterIntake: 2,
 };
 
 const HomeScreen = () => {
@@ -119,40 +111,40 @@ const HomeScreen = () => {
   const [product, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [trainers, setTrainers] = useState([]);
+  const [profile, setProfile] = React.useState(null);
 
-  // Exerciselist
-  useEffect(() => {
-    // console.log("useEffect: Starting fetch...");
+  React.useEffect(() => {
     setLoading(true);
+    getProfileInfo()
+      .then((res) => {
+        setProfile(res.data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        setProfile([]);
+        setLoading(false);
+        console.error("Profile load failed:", err);
+      });
+
     getproductlist("")
       .then((res) => {
-        // console.log("useEffect: Raw API Response:", res);
         const newProducts = Array.isArray(res?.data) ? res.data : [];
-        // console.log("useEffect: Setting products to:", newProducts);
         setProducts(newProducts);
         setLoading(false);
       })
       .catch((error) => {
-        // console.error("useEffect: Error fetching product list:", error);
         setProducts([]);
         setLoading(false);
       });
-  }, []);
 
-  useEffect(() => {
     getemployelistview()
       .then((res) => {
         setTrainers(res.data);
-        // console.log("Trainers data:", res.data);
       })
       .catch((error) => console.error("trainer load failed:", error));
   }, []);
 
   const safeProduct = Array.isArray(product) ? product : [];
-
-  // console.log("Render: Loading state:", loading);
-  // console.log("Render: Product state:", product);
-  // console.log("Render: Safe product:", safeProduct);
 
   if (loading) {
     return (
@@ -172,16 +164,21 @@ const HomeScreen = () => {
     <View style={styles.container}>
       <View style={styles.header}>
         <View>
-          <Text style={styles.greeting}>Hello, {user?.name}</Text>
+          <Text style={styles.greeting}>
+            {STRINGS.greeting(profile?.emp_data?.name)}
+          </Text>
           <Text style={styles.membershipInfo}>
-            {user?.membershipType} Membership • {user?.visitsLeft} visits left
+            {"Premium"} Membership • {"10"} visits left
           </Text>
         </View>
         <TouchableOpacity
           style={styles.profileButton}
-          onPress={() => router.push("/Profile")}
+          onPress={() => navigation.navigate("/Profile")}
         >
-          <Image source={{ uri: DEFAULT_AVATAR }} style={styles.profileImage} />
+          <Image
+            source={{ uri: profile?.image || DEFAULT_AVATAR }}
+            style={styles.profileImage}
+          />{" "}
         </TouchableOpacity>
       </View>
 
@@ -192,21 +189,21 @@ const HomeScreen = () => {
             style={styles.actionButton}
             onPress={() => router.push("Book")}
           >
-            <Ionicons name="calendar" size={24} color="#4CAF50" />
+            <Ionicons name="calendar" size={24} color={Colors.primary} />
             <Text style={styles.actionText}>Book Class</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.actionButton}
             onPress={() => router.push("Workout")}
           >
-            <Ionicons name="fitness" size={24} color="#4CAF50" />
+            <Ionicons name="fitness" size={24} color={Colors.primary} />
             <Text style={styles.actionText}>Start Workout</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.actionButton}
             onPress={() => router.push("Progress")}
           >
-            <Ionicons name="trending-up" size={24} color="#4CAF50" />
+            <Ionicons name="trending-up" size={24} color={Colors.primary} />
             <Text style={styles.actionText}>Track Progress</Text>
           </TouchableOpacity>
         </View>
@@ -389,9 +386,12 @@ const HomeScreen = () => {
         </View>
 
         {/* Exercise List */}
-        <View style={styles.safeContainer1}>
-          <Text style={styles.title1}>Select Your Fitness Areas</Text>
-          <View style={styles.container1}>
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Our Fitness Area</Text>
+            <Text style={styles.seeAllText}>See All</Text>
+          </View>
+          <View style={styles.workOutList}>
             {safeProduct.length === 0 ? (
               <Text style={styles.emptyText1}>No fitness areas available</Text>
             ) : (
@@ -404,7 +404,7 @@ const HomeScreen = () => {
                 showsVerticalScrollIndicator={false}
                 keyboardShouldPersistTaps="handled"
                 contentContainerStyle={styles.flatListContent}
-                columnWrapperStyle={styles.columnWrapper}
+                columnWrapperStyle={styles.columnWrapper1}
                 renderItem={({ item, index }) => (
                   <BodyPartCard router={router} index={index} item={item} />
                 )}
@@ -426,10 +426,7 @@ const HomeScreen = () => {
 };
 
 const BodyPartCard = ({ router, index, item }) => {
-  // console.log("BodyPartCard: Rendering item at index", index, ":", item);
-
   if (!item) {
-    // console.warn("BodyPartCard: item is undefined at index", index);
     return (
       <View style={styles.bodyPartCard}>
         <Text style={styles.bodyPartText}>Invalid Item</Text>
@@ -437,7 +434,6 @@ const BodyPartCard = ({ router, index, item }) => {
     );
   }
 
-  // Handle different image formats
   const imageSource =
     item.image && typeof item.image === "object" && item.image.uri
       ? item.image
@@ -445,9 +441,8 @@ const BodyPartCard = ({ router, index, item }) => {
       ? { uri: item.image }
       : item.imageUrl
       ? { uri: item.imageUrl }
-      : { uri: DEFAULT_AVATAR }; // Fallback to default avatar
+      : { uri: DEFAULT_AVATAR };
 
-  // Handle different name formats
   const displayName = item.name || item.title || "Unnamed";
 
   return (
@@ -747,47 +742,26 @@ const styles = StyleSheet.create({
     color: "#333",
     textAlign: "center",
   },
-
-  // Exercise List
-  safeContainer1: {
-    backgroundColor: "#F5F5F5",
-  },
-  container1: {
-    paddingHorizontal: 4,
-    paddingTop: hp(2),
-  },
-  title1: {
-    fontSize: hp(3),
-    fontWeight: "bold",
-    color: "#404040",
-    marginBottom: hp(2),
-    textAlign: "center",
-  },
-  flatListContent: {
-    paddingBottom: hp(14), // Adjusted for better scrolling
-  },
-  columnWrapper: {
+  columnWrapper1: {
     justifyContent: "space-between",
-    paddingHorizontal: 5,
+    paddingHorizontal: 0,
   },
   bodyPartCard: {
-    width: wp(100),
-    height: hp(18),
+    width: wp(83),
+    height: hp(14),
     flexDirection: "row",
     margin: 5,
     padding: 10,
     backgroundColor: "#fff",
     borderRadius: 12,
     alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowRadius: 1,
+    elevation: 1,
   },
   bodyPartImage: {
-    width: wp(18), // Adjusted to fit within the card
-    height: hp(14),
+    width: wp(20),
+    height: hp(10),
     borderRadius: 8,
     marginRight: 10,
     backgroundColor: "#e0e0e0",
@@ -803,23 +777,22 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   bodyPartDescription: {
-    fontSize: hp(1.6),
     color: "#666",
     marginBottom: 2,
     lineHeight: hp(2),
+    fontSize: hp(1.6),
   },
   bodyPartCharge: {
+    color: "#4CAF50",
     fontSize: hp(1.8),
     fontWeight: "600",
-    color: "#4CAF50",
   },
   emptyText1: {
-    textAlign: "center",
     color: "#999",
     fontSize: 14,
+    textAlign: "center",
     paddingVertical: 10,
   },
-
   card1: {
     flex: 1,
     margin: 8,
