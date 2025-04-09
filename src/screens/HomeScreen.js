@@ -19,7 +19,7 @@ import Colors from "../../constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router"; // Import router for Expo Router
-import Colors from "../../constants/Colors";
+// import Colors from "../../constants/Colors";
 import { getproductlist } from "../services/productServices";
 import { getemployelistview } from "../services/productServices";
 import { getProfileInfo } from "../services/authServices";

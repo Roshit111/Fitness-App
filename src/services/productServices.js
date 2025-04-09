@@ -1,4 +1,4 @@
-import { addEmpLeave, getEmpLeavedata, addClaim, getEmpClaimdata, getExpenseItemList, getProjectList, getEmpAttendanceData, getEmpHolidayData, empCheckData, processClaim, getClaimApproverList, productListURL, userTaskListURL, getCustomerDetailListURL, getemployeeList } from "../services/ConstantServies";
+import { addEmpLeave, getEmpLeavedata, addClaim, getEmpClaimdata, getExpenseItemList, getProjectList, getEmpAttendanceData, getEmpHolidayData, empCheckData, processClaim, getClaimApproverList, productListURL, userTaskListURL, getCustomerDetailListURL, getemployeeList, userLoginURL } from "../services/ConstantServies";
 import { authAxios, authAxiosFilePost, authAxiosPost } from "./HttpMethod";
 
 export function getUserTasks(task_type, customer_id,emp_id) {
@@ -96,15 +96,15 @@ export function getCustomerDetailList() {
     return authAxios(getEmpHolidayData, data)
   }
 
-  export function postCheckIn(checkin_data) {
-    let data = {};
-    if (checkin_data) {
-      data['attendance_data'] = checkin_data;
-      // data = checkin_data;
-    }
-    // console.log('Data to be sent:', data);
-    return authAxiosPost(empCheckData, data)
-  }
+  // export function postCheckIn(checkin_data) {
+  //   let data = {};
+  //   if (checkin_data) {
+  //     data['attendance_data'] = checkin_data;
+  //     // data = checkin_data;
+  //   }
+  //   // console.log('Data to be sent:', data);
+  //   return authAxiosPost(empCheckData, data)
+  // }
   export function getproductlist(name) {
     // console.log('getLeadList', name)
     return authAxios(productListURL)
@@ -113,3 +113,11 @@ export function getCustomerDetailList() {
   export function getemployelistview() { 
     return authAxios(getemployeeList)
   }
+
+export function customerLogin(username, password) {
+  let data = {
+    'mobile_number': username,
+    'pin': password
+  };
+  return authAxiosPost(userLoginURL, data)
+}
