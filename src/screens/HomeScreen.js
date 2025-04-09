@@ -28,7 +28,7 @@ const DEFAULT_AVATAR =
 
 const STRINGS = {
   greeting: (name) =>
-    name ? (name.length > 20 ? `${name.slice(0, 17)}...` : name) : "User",
+    name ? (name.length > 20 ? `${name.slice(0, 17)}...` : name) : "Userxyz",
   searchPlaceholder: "Search here...",
   workoutHeader: "Popular Workout",
   caloriesBurned: (calories) => `🔥 ${calories} Cal`,
@@ -420,6 +420,8 @@ const HomeScreen = () => {
             )}
           </View>
         </View>
+
+        
       </ScrollView>
     </View>
   );

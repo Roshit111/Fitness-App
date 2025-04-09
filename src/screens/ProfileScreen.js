@@ -14,7 +14,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Styled components
 const Container = styled.View`
-  flex: 1;
   justify-content: flex-start;
   align-items: center;
   background-color: #f9f9fb;
