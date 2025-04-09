@@ -1,15 +1,15 @@
 import React from "react";
 import { StyleSheet } from "react-native";
-import { StatusBar } from "expo-status-bar";
 import Colors from "../../constants/Colors";
+import { StatusBar } from "expo-status-bar";
 import { SafeAreaView } from "react-native-safe-area-context";
-import ProfileScreen from "../../src/screens/ProfileScreen";
+import ClassesScreen from "../../src/screens/ClassesScreen";
 
 const index = () => {
   return (
     <SafeAreaView style={styles.container}>
-      {/* <StatusBar style="light" backgroundColor={Colors.primary} /> */}
-      <ProfileScreen />
+      <StatusBar style="light" backgroundColor={Colors.primary} />
+      <ClassesScreen />
     </SafeAreaView>
   );
 };
