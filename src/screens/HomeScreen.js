@@ -9,11 +9,9 @@ import {
   ScrollView,
   Dimensions,
   TouchableOpacity,
-  StatusBar,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import { SafeAreaView } from "react-native-safe-area-context";
 import Colors from "../../constants/Colors";
+import { Ionicons } from "@expo/vector-icons";
 
 const { width } = Dimensions.get("window");
 const DEFAULT_AVATAR =
